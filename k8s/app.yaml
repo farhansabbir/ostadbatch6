@@ -5,13 +5,51 @@ metadata:
 
 ---
 apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: mongo-pv
+spec:
+  capacity:
+    storage: 2Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: slow
+  local:
+    path: /mnt/data
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - debian13master
+
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: mongo-pvc
+  namespace: farhansabbir
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: slow
+  volumeName: mongo-pv
+  resources:
+    requests:
+      storage: 2Gi
+
+---
+apiVersion: v1
 kind: Secret
 metadata:
   name: app-secrets
   namespace: farhansabbir
 type: Opaque
 data:
-  # Values for 'ostad' (b3N0YWQ=)
   MONGO_USERNAME: b3N0YWQ=
   MONGO_PASSWORD: b3N0YWQ=
   MONGO_INITDB_ROOT_USERNAME: b3N0YWQ=
@@ -64,6 +102,13 @@ spec:
               secretKeyRef:
                 name: app-secrets
                 key: MONGO_INITDB_ROOT_PASSWORD
+        volumeMounts:
+          - name: mongo-storage
+            mountPath: /data/db
+      volumes:
+        - name: mongo-storage
+          persistentVolumeClaim:
+            claimName: mongo-pvc
 
 ---
 apiVersion: v1
@@ -109,7 +154,6 @@ spec:
           ports:
             - containerPort: 5050
           env:
-            
             - name: MONGO_URI
               value: "mongodb://$(MONGO_USERNAME):$(MONGO_PASSWORD)@$(MONGO_HOST_PORT_DB)"
             
@@ -130,6 +174,21 @@ spec:
                 secretKeyRef:
                   name: app-secrets
                   key: MONGO_PASSWORD
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-service
+  namespace: farhansabbir
+spec:
+  selector:
+    app: backend
+  ports:
+    - protocol: TCP
+      port: 5050
+      targetPort: 5050
+  type: ClusterIP 
 
 ---
 apiVersion: apps/v1
@@ -160,22 +219,6 @@ spec:
         ports:
         - containerPort: 5173
 
-
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: backend-service
-  namespace: farhansabbir
-spec:
-  selector:
-    app: backend
-  ports:
-    - protocol: TCP
-      port: 5050
-      targetPort: 5050
-  type: ClusterIP 
-
 ---
 apiVersion: v1
 kind: Service
@@ -192,7 +235,6 @@ spec:
   type: ClusterIP 
   
 ---
-
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -201,7 +243,7 @@ metadata:
   labels:
     app.kubernetes.io/name: ostad-ingress
 spec:
-  ingressClassName: nginx 
+  ingressClassName: nginx
   rules:
   - host: chat.local
     http:
