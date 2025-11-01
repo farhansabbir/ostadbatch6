@@ -26,9 +26,9 @@ jobs:
           password: ${{ secrets.DOCKER_TOKEN }}
 
       # Step 4: Build and push image
-      # - name: Build and Push Docker Image
-      #   uses: docker/build-push-action@v5
-      #   with:
-      #     context: .
-      #     push: true
-      #     tags: farhansabbir/next-japan:latest
+      - name: Build and Push Docker Image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: farhansabbir/next-japan:latest
