@@ -1,0 +1,34 @@
+kind: Namespace
+metadata:
+  name: ostad
+
+---
+kind: Deployment
+metadata:
+  name: japan-deployment
+  namespace: ostad
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: japan
+  template:
+    metadata:
+      labels:
+        app: japan
+    spec:
+      containers:
+        - name: japan-container
+          image: farhansabbir/next-japan:latest
+          ports:
+            - containerPort: 3000
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          env:
+            - name: NODE_ENV
+              value: "production"
