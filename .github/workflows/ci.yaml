@@ -1,11 +1,9 @@
-name: Build & Push Docker Image to Docker Hub
-on:
-  workflow_dispatch:
+name: View contents of hello.txt
 
-# on:
-#   push:
-#     branches:
-#       - main  # Change to your desired branch if needed
+on:
+  push:
+    branches:
+      - assignment/japan
 
 jobs:
   docker:
@@ -33,4 +31,4 @@ jobs:
         with:
           context: .
           push: true
-          tags: arif0ahammed0reza/next-japan:latest
+          tags: farhansabbir/next-japan:latest
