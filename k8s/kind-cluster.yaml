@@ -5,5 +5,9 @@ name: ostad-ec2-kind-cluster
 
 nodes:
   - role: control-plane
+    extraPortMappings:
+      - containerPort: 30000
+        hostPort: 30000
+        listenAddress: "0.0.0.0"
   - role: worker
   - role: worker
