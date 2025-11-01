@@ -40,11 +40,26 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_TOKEN }}
 
-      # Step 4: Build and push image
+      # Step 4: Define Image Tags and Metadata
+      # This step generates tags like 'farhansabbir/next-japan:latest' and 'farhansabbir/next-japan:c8a74e9' (commit SHA)
+      - name: Define Image Tags
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: farhansabbir/next-japan
+          tags: |
+            type=raw,value=latest
+            type=sha,format=true
+
+      # Step 5: Build and push multi-platform image
       - name: Build and Push Docker Image
         uses: docker/build-push-action@v5
         with:
           context: .
-          platform: linux/amd64,linux/arm64
+          # Define the target platforms, including linux/amd64 (for x86) and linux/arm64
+          platforms: linux/amd64,linux/arm64 
           push: true
-          tags: farhansabbir/next-japan:latest
+          tags: ${{ steps.meta.outputs.tags }}
+          # Enable caching for faster rebuilds
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
