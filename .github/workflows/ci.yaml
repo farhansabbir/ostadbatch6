@@ -49,7 +49,6 @@ jobs:
           images: farhansabbir/next-japan
           tags: |
             type=raw,value=latest
-            type=sha,format=true
 
       # Step 5: Build and push multi-platform image
       - name: Build and Push Docker Image
