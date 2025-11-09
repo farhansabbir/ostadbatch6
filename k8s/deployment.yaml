@@ -7,23 +7,23 @@ metadata:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: japan-deployment
+  name: ass8-deployment
   namespace: ostad
 spec:
   replicas: 3
   selector:
     matchLabels:
-      app: japan
+      app: ass8
   template:
     metadata:
       labels:
-        app: japan
+        app: ass8
     spec:
       containers:
-        - name: japan-container
-          image: farhansabbir/next-japan:latest
+        - name: ass8-container
+          image: nginx:latest
           ports:
-            - containerPort: 3000
+            - containerPort: 80
           resources:
             requests:
               memory: "512Mi"
